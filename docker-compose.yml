@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  amlak-mysql:
+    image: mysql:8.0
+    container_name: amlak-mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+    volumes:
+      - amlakdbdata:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASS}
+      MYSQL_DATABASE: ${DB_NAME}
+    ports:
+      - '9037:3306'
+    networks:
+      - nginx_proxy_manager
+  amlak-node-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: amlak-node-api
+    ports:
+      - '9115:9115'
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/build
+    command: ['node', 'build/index']
+    restart: unless-stopped
+    depends_on:
+      - amlak-mysql
+      - amlak-typesense
+    networks:
+      - nginx_proxy_manager
+      - amlak-network
+  amlak-phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: amlak-phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: amlak-mysql
+      MYSQL_ROOT_PASSWORD: ${DB_PASS}
+      UPLOAD_LIMIT: 86400
+    ports:
+      - '8094:80'
+    depends_on:
+      - amlak-mysql
+    networks:
+      - nginx_proxy_manager
+  amlak-typesense:
+    image: typesense/typesense:26.0
+    container_name: amlak-typesense
+    restart: unless-stopped
+    ports:
+      - '${TYPESENSE_PORT}:8108'
+    volumes:
+      - typesensedata:/data
+    command: '--data-dir /data --api-key=${TYPESENSE_API_KEY} --enable-cors'
+    networks:
+      - amlak-network
+      - nginx_proxy_manager
+
+networks:
+  amlak-network:
+    driver: bridge
+  nginx_proxy_manager:
+    name: npm_network
+    external: true
+volumes:
+  amlakdbdata:
+  typesensedata:

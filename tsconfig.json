@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "removeComments": true,
+    "declaration": true,
+    "resolveJsonModule": true, /* in case you are importing JSON files */
+    "target": "ES2021",
+    "outDir": "build",
+    "forceConsistentCasingInFileNames": true,
+    "strictPropertyInitialization": false,
+    "emitDecoratorMetadata": true,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "noImplicitAny": true,
+    "skipLibCheck": true,
+    "allowJs": true,
+    "sourceMap": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "baseUrl": ".",
+  },
+  "include": [
+    "src/**/*"
+  ],
+}
